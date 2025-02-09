@@ -18,10 +18,16 @@ class MenuFactory extends Factory
      */
     public function definition(): array
     {
+        $categories = ['Eastern_food', 'Western_food', 'Desserts', 'Juices'];
+        $imageName = 'menu_' . fake()->unique()->numberBetween(1, 100) . '.jpg';
+
         return [
             'name' => fake()->word(),
             'description' => fake()->sentence(10), 
             'price' => fake()->randomFloat(2, 5, 50),
+            'category' => fake()->randomElement($categories), 
+            'image_name' => $imageName,
+
         ];
     }
 }
