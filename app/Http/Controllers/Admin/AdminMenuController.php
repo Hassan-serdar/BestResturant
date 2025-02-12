@@ -1,40 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Models\Menu;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponseTrait;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class MenuController extends Controller
+class AdminMenuController extends Controller
 {
     use ApiResponseTrait;
-
     /**
-
-    */
-    public function index(): JsonResponse
-    {
-        $menus = Menu::all();
-        return $this->apiResponse("Ok", "Data retrieved successfully", $menus);
-    }
-
-    /**
-    
-     */
-    public function show($id): JsonResponse
-    {
-        $menu = Menu::find($id);
-        if (!$menu) {
-            return $this->notFoundResponse();
-        }
-        return $this->apiResponse("Ok", "Data retrieved successfully", $menu);
-    }
-
-    /**
-     * إنشاء عنصر جديد في القائمة.
      */
     public function store(Request $request): JsonResponse
     {
@@ -64,9 +42,6 @@ class MenuController extends Controller
         }
     }
 
-    /**
-
-    */
     public function edit($id): JsonResponse
     {
         $menu = Menu::find($id);
@@ -74,21 +49,6 @@ class MenuController extends Controller
             return $this->notFoundResponse();
         }
         return $this->apiResponse("Ok", "Data retrieved successfully", $menu);
-    }
-
-    public function showcategory($categoryname): JsonResponse
-    {
-        try {
-            $menus = Menu::where('category', $categoryname)->get();
-    
-            if ($menus->isEmpty()) {
-                return $this->notFoundResponse("No items found for category: $categoryname");
-            }
-    
-            return $this->apiResponse("Ok", "Data retrieved successfully", $menus);
-        } catch (\Exception $e) {
-            return $this->serverErrorResponse($e->getMessage());
-        }
     }
 
     /**
