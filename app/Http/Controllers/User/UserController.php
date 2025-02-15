@@ -57,7 +57,8 @@ class UserController extends Controller
 
           /* @var User $user **/  
             $user = Auth::guard('web')->user();
-            $token = $user->createToken('authToken')->plainTextToken;
+            $user1=User::where('email',$request->email)->first();
+            $token = $user1->createToken('authToken')->plainTextToken;
 
             return $this->retrievedResponse(['user' => $user, 'token' => $token], 'User logged in successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {

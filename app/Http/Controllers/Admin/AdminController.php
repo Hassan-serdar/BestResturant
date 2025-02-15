@@ -53,7 +53,8 @@ class AdminController extends Controller
             }
 
             /* @var Admmin $admin **/ $admin = Auth::guard('admin')->user();
-            $token = $admin->createToken("Admin-Token")->plainTextToken;
+            $admin1=Admin::where('email',$request->email)->first();
+            $token = $admin1->createToken("Admin-Token")->plainTextToken;
 
             return $this->retrievedResponse(['admin' => $admin, 'token' => $token], 'Admin logged in successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
