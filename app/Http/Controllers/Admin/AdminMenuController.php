@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AdminMenuController extends Controller
 {
+    // This controller to edit , create , update , delete from the menu
     use ApiResponseTrait;
     /**
      */

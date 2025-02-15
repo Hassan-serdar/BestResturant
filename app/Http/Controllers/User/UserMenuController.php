@@ -12,11 +12,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class UserMenuController extends Controller
 {
+     // This controller to show a menu and category
     use ApiResponseTrait;
 
     /**
 
     */
+    // show all menu
     public function index(): JsonResponse
     {
         $menus = Menu::paginate(10);
@@ -40,6 +42,7 @@ class UserMenuController extends Controller
     /**
     
      */
+    // see a specific item from menu
     public function show($id): JsonResponse
     {
         $menu = Menu::find($id);
@@ -48,7 +51,7 @@ class UserMenuController extends Controller
         }
         return $this->apiResponse("Ok", "Data retrieved successfully", $menu);
     }
-
+    // see  items in a specific category 
     public function showcategory($categoryname): JsonResponse
     {
         try {

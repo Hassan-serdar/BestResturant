@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 
 class AdminManageUserController extends Controller
 {
+    // This controller to see the register users and delete a user 
     use ApiResponseTrait;
 
     public function index(): JsonResponse
