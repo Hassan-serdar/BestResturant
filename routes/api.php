@@ -11,7 +11,10 @@ use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\admin\AdminOfferController;
 use App\Http\Controllers\User\UserContactController;
 use App\Http\Controllers\user\UserEmailVerification;
+use App\Http\Controllers\admin\AdminContactusController;
 use App\Http\Controllers\Admin\AdminManageUserController;
+use App\Http\Controllers\user\UserDiscountCodeController;
+use App\Http\Controllers\admin\AdminDiscountCodeController;
 
 Route::prefix('admin')->group(function () {
 
@@ -34,6 +37,17 @@ Route::prefix('admin')->group(function () {
         Route::get('/showuser/{id}', [AdminManageUserController::class, 'show']);
         Route::delete('/showuser/{id}', [AdminManageUserController::class, 'destroy']);
     });
+    // Manage discount code 
+    Route::middleware('auth.admin')->group(function () {
+        Route::get('/showcode', [AdminDiscountCodeController::class, 'index']);
+        Route::Post('/createcode', [AdminDiscountCodeController::class, 'store']);
+        Route::get('/editcode/{id}', [AdminDiscountCodeController::class, 'show']);
+        Route::patch('/editcode/{id}', [AdminDiscountCodeController::class, 'update']);
+        Route::delete('/editcode/{id}', [AdminDiscountCodeController::class, 'destroy']);
+    });
+
+    Route::get('/showcontactus', [AdminContactusController::class, 'index'])->middleware('auth.admin');
+
 });
 
 
@@ -71,6 +85,8 @@ Route::prefix('user')->group(function () {
         Route::get('/contactus', [UserContactController::class,'index']); // Show Contact us page
         Route::Post('/contactus', [UserContactController::class,'store']); // send a message from Contact us page
     });
+    Route::get('/showcode', [UserDiscountCodeController::class, 'index'])->middleware('auth:user-api');
+
 });
 
 // Menu Routes (Public access)
