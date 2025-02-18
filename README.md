@@ -36,4 +36,4 @@ View the homepage, contact us page, about the restaurant page, food categories, 
 - ## Technologies Used
 - **Backend:** Laravel
 - **Database:** MySQL
-- **Other Tools:Api
+- **Other Tools**:Api
