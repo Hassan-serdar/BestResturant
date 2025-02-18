@@ -2,13 +2,17 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MainController;
+use App\Http\Controllers\user\CartController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\GuestContactController;
 use App\Http\Controllers\User\UserMenuController;
 use App\Http\Controllers\user\UserOfferController;
+use App\Http\Controllers\User\UserOrderController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\admin\AdminOfferController;
+use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\User\UserContactController;
 use App\Http\Controllers\user\UserEmailVerification;
 use App\Http\Controllers\admin\AdminContactusController;
@@ -48,8 +52,30 @@ Route::prefix('admin')->group(function () {
 
     Route::get('/showcontactus', [AdminContactusController::class, 'index'])->middleware('auth.admin');
 
-});
+    Route::middleware('auth.admin')->group(function () {
+    Route::get('/showorder', [AdminOrderController::class, 'index']);
+    Route::patch('/orders/{id}', [AdminOrderController::class, 'update']);
+    });
 
+});
+    
+    // Menu Management Routes (Admin only)
+    Route::prefix('menu')->middleware('auth.admin')->controller(AdminMenuController::class)->group(function () {
+        Route::get('/edit/{id}', 'edit'); // Show a page for edit a specific menu item
+        Route::post('/create', 'store'); // Create a new menu item
+        Route::patch('/update/{id}', 'update'); // Update a specific menu item
+        Route::delete('/delete/{id}', 'destroy'); // Delete a specific menu item
+    });
+    
+    // Offer Management Routes (Admin only)
+    Route::prefix('offers')->middleware('auth.admin')->controller(AdminOfferController::class)->group(function () {
+        Route::get('/edit/{id}', 'edit'); // Show a page for edit a specific offer item
+        Route::post('/create', 'store'); // Create a new offer item
+        Route::patch('/update/{id}', 'update'); // Update a specific offer item
+        Route::delete('/delete/{id}', 'destroy'); // Delete a specific offer item
+    
+    });
+    
 
 Route::prefix('user')->group(function () {
 
@@ -87,6 +113,18 @@ Route::prefix('user')->group(function () {
     });
     Route::get('/showcode', [UserDiscountCodeController::class, 'index'])->middleware('auth:user-api');
 
+    Route::middleware('auth:user-api')->group(function () {
+        Route::post('/cart/add-item/{id}', [CartController::class, 'addItem']);
+        Route::post('/cart/add-offer/{id}', [CartController::class, 'addOffer']);
+        Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount']);
+        Route::post('/cart/confirm-order', [CartController::class, 'confirmOrder']); // confirm cart
+        Route::get('/cart', [CartController::class, 'getCart']);
+        Route::post('/cart/delete-item/{id}', [CartController::class, 'removeItem']);
+        Route::delete('/cart', [CartController::class, 'clearCart']);
+    });
+    Route::get('/my-orders', [UserOrderController::class, 'myOrders'])->middleware('auth.user');
+    
+
 });
 
 // Menu Routes (Public access)
@@ -105,18 +143,6 @@ Route::prefix('offers')->controller(UserOfferController::class)->group(function 
     Route::get('/show/{id}', 'show'); // Show a specific offer item
 });
 
-// Menu Management Routes (Admin only)
-Route::prefix('menu')->middleware('auth.admin')->controller(AdminMenuController::class)->group(function () {
-    Route::get('/edit/{id}', 'edit'); // Show a page for edit a specific menu item
-    Route::post('/create', 'store'); // Create a new menu item
-    Route::patch('/update/{id}', 'update'); // Update a specific menu item
-    Route::delete('/delete/{id}', 'destroy'); // Delete a specific menu item
-});
+Route::get('/home', [MainController::class,'index']); // Show Home  page
+Route::get('/aboutus', [MainController::class,'about']); // Show About us page
 
-// Offer Management Routes (Admin only)
-Route::prefix('offers')->middleware('auth.admin')->controller(AdminOfferController::class)->group(function () {
-    Route::get('/edit/{id}', 'edit'); // Show a page for edit a specific offer item
-    Route::post('/create', 'store'); // Create a new offer item
-    Route::patch('/update/{id}', 'update'); // Update a specific offer item
-    Route::delete('/delete/{id}', 'destroy'); // Delete a specific offer item
-});
