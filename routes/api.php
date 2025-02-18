@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\AdminManageUserController;
 use App\Http\Controllers\user\UserDiscountCodeController;
 use App\Http\Controllers\admin\AdminDiscountCodeController;
 
+// Admin Routes
 Route::prefix('admin')->group(function () {
 
     // Login for Admin (Guest only)
@@ -33,6 +34,10 @@ Route::prefix('admin')->group(function () {
         Route::post('/logout', [AdminController::class, 'logout']);
         Route::get('/profile', [AdminController::class, 'profile']);
         Route::post('/register', [AdminController::class, 'register']);
+        Route::get('/profile/edit', [AdminController::class, 'profile']);
+        Route::post('/profile/edit', [AdminController::class, 'editprofile']);
+
+        
     });
 
     // Manage Users (Authenticated Admin only)
@@ -41,7 +46,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/showuser/{id}', [AdminManageUserController::class, 'show']);
         Route::delete('/showuser/{id}', [AdminManageUserController::class, 'destroy']);
     });
-    // Manage discount code 
+
+    // Manage Discount Codes (Authenticated Admin only)
     Route::middleware('auth.admin')->group(function () {
         Route::get('/showcode', [AdminDiscountCodeController::class, 'index']);
         Route::Post('/createcode', [AdminDiscountCodeController::class, 'store']);
@@ -50,15 +56,16 @@ Route::prefix('admin')->group(function () {
         Route::delete('/editcode/{id}', [AdminDiscountCodeController::class, 'destroy']);
     });
 
+    // Manage Contact Us Messages (Authenticated Admin only)
     Route::get('/showcontactus', [AdminContactusController::class, 'index'])->middleware('auth.admin');
 
+    // Manage Orders (Authenticated Admin only)
     Route::middleware('auth.admin')->group(function () {
-    Route::get('/showorder', [AdminOrderController::class, 'index']);
-    Route::patch('/orders/{id}', [AdminOrderController::class, 'update']);
+        Route::get('/showorder', [AdminOrderController::class, 'index']);
+        Route::patch('/orders/{id}', [AdminOrderController::class, 'update']);
     });
-
 });
-    
+
     // Menu Management Routes (Admin only)
     Route::prefix('menu')->middleware('auth.admin')->controller(AdminMenuController::class)->group(function () {
         Route::get('/edit/{id}', 'edit'); // Show a page for edit a specific menu item
@@ -66,16 +73,16 @@ Route::prefix('admin')->group(function () {
         Route::patch('/update/{id}', 'update'); // Update a specific menu item
         Route::delete('/delete/{id}', 'destroy'); // Delete a specific menu item
     });
-    
+
     // Offer Management Routes (Admin only)
     Route::prefix('offers')->middleware('auth.admin')->controller(AdminOfferController::class)->group(function () {
         Route::get('/edit/{id}', 'edit'); // Show a page for edit a specific offer item
         Route::post('/create', 'store'); // Create a new offer item
         Route::patch('/update/{id}', 'update'); // Update a specific offer item
         Route::delete('/delete/{id}', 'destroy'); // Delete a specific offer item
-    
     });
-    
+
+// User Routes
 
 Route::prefix('user')->group(function () {
 
@@ -107,35 +114,45 @@ Route::prefix('user')->group(function () {
             ->middleware(['throttle:6,1'])
             ->name('verification.send');
     });
-    Route::middleware('auth:user-api')->group(function () {
-        Route::get('/contactus', [UserContactController::class,'index']); // Show Contact us page
-        Route::Post('/contactus', [UserContactController::class,'store']); // send a message from Contact us page
-    });
-    Route::get('/showcode', [UserDiscountCodeController::class, 'index'])->middleware('auth:user-api');
 
-    Route::middleware('auth:user-api')->group(function () {
+    // Contact Us Routes (Authenticated User only)
+    Route::middleware('auth.user')->group(function () {
+        Route::get('/contactus', [UserContactController::class, 'index']); // Show Contact us page
+        Route::Post('/contactus', [UserContactController::class, 'store']); // Send a message from Contact us page
+    });
+
+    // Discount Code Routes (Authenticated User only)
+    Route::get('/showcode', [UserDiscountCodeController::class, 'index'])->middleware('auth.user');
+
+    // Cart Management Routes (Authenticated User only)
+    Route::middleware('auth.user')->group(function () {
         Route::post('/cart/add-item/{id}', [CartController::class, 'addItem']);
         Route::post('/cart/add-offer/{id}', [CartController::class, 'addOffer']);
         Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount']);
-        Route::post('/cart/confirm-order', [CartController::class, 'confirmOrder']); // confirm cart
+        Route::post('/cart/confirm-order', [CartController::class, 'confirmOrder']); // Confirm cart
         Route::get('/cart', [CartController::class, 'getCart']);
         Route::post('/cart/delete-item/{id}', [CartController::class, 'removeItem']);
         Route::delete('/cart', [CartController::class, 'clearCart']);
     });
-    Route::get('/my-orders', [UserOrderController::class, 'myOrders'])->middleware('auth.user');
-    
 
+    // Order Management Routes (Authenticated User only)
+    Route::get('/my-orders', [UserOrderController::class, 'myOrders'])->middleware('auth.user');
 });
 
+// ------------------------------
+// Public Routes (No Authentication Required)
+// ------------------------------
+
 // Menu Routes (Public access)
-Route::get('/category/{categoryname}', [UserMenuController::class, 'showcategory']); // To show specific category
+Route::get('/category/{categoryname}', [UserMenuController::class, 'showcategory']); // Show specific category
 Route::prefix('menu')->controller(UserMenuController::class)->group(function () {
     Route::get('/show', 'index'); // Show all menu items
     Route::get('/show/{id}', 'show'); // Show a specific menu item
 });
-// Contact us Routes (Public access)
-Route::get('/contactus', [GuestContactController::class,'index']); // Show Contact us page
-Route::Post('/contactus', [GuestContactController::class,'store']); // send a message from Contact us page
+
+// Contact Us Routes (Public access)
+Route::get('/contactus', [GuestContactController::class, 'index']); // Show Contact us page
+Route::Post('/contactus', [GuestContactController::class, 'store']); // Send a message from Contact us page
 
 // Offer Routes (Public access)
 Route::prefix('offers')->controller(UserOfferController::class)->group(function () {
@@ -143,6 +160,6 @@ Route::prefix('offers')->controller(UserOfferController::class)->group(function 
     Route::get('/show/{id}', 'show'); // Show a specific offer item
 });
 
-Route::get('/home', [MainController::class,'index']); // Show Home  page
-Route::get('/aboutus', [MainController::class,'about']); // Show About us page
-
+// Home and About Us Routes (Public access)
+Route::get('/home', [MainController::class, 'index']); // Show Home page
+Route::get('/aboutus', [MainController::class, 'about']); // Show About us page
